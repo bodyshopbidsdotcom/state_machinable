@@ -1,4 +1,6 @@
-module StateMachinable::BaseStateMachine
+require 'active_support'
+
+module BaseStateMachine
   extend ActiveSupport::Concern
 
   class_methods do
