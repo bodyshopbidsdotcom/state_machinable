@@ -1,5 +1,6 @@
 require "state_machinable/version"
 require 'active_support'
+require "state_machinable/base_state_machine"
 
 module StateMachinable
   extend ActiveSupport::Concern
