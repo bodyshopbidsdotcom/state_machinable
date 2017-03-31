@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["santiago@snapsheet.me"]
 
   spec.summary       = %q{Gem that adds functionality to statesman}
-  spec.homepage      = "https://github.com/bodyshopbidsdotcom/state_machinable"
+  spec.homepage      = "https://github.com/snapsheet/state_machinable"
   spec.license       = "MIT"
 
   if spec.respond_to?(:metadata)
