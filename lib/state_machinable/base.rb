@@ -33,7 +33,7 @@ module StateMachinable
 
       def method_missing(name, *args, &block)
         begin
-          events = "#{self.class}::EVENTS".constantize
+          events = "#{self.class}::EVENTS".constantize.dup
         rescue NameError
           events = []
         end
