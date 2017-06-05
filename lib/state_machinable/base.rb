@@ -23,7 +23,7 @@ module StateMachinable
       end
 
       after_transition do |obj, transition|
-        obj.update_column(:current_state, transition.to_state)
+        obj.update(:current_state => transition.to_state)
 
         state_class = obj.state_machine.class.state_class(transition.to_state)
         if state_class.present? && state_class.respond_to?(:enter)
