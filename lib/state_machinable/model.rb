@@ -31,7 +31,8 @@ module StateMachinable
       end
 
       private def transition_to_initial_state
-        if !self.respond_to?(:skip_state_machine?) || !self.skip_state_machine?
+        initial_state = self.state_machine.class.successors['initial'].first
+        if (!self.respond_to?(:skip_state_machine?) || !self.skip_state_machine?) && (self.current_state != initial_state)
           self.transition_to!(self.state_machine.class.successors['initial'].first)
         end
       end
