@@ -4,10 +4,11 @@ Adds state machine functionality to `statesman`
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add these lines to your application's Gemfile:
 
 ```ruby
 gem 'state_machinable'
+gem 'statesman'
 ```
 
 And then execute:
@@ -16,11 +17,129 @@ And then execute:
 
 Or install it yourself as:
 
+    $ gem install statesman
     $ gem install state_machinable
 
-## Usage
+## Setup
 
-TODO
+Generate the transitions for a model, e.g. `Order`
+
+    $ rails g migration CreateOrderTransitions
+
+The migration will look very similar to if you had generated it with Statesman, but with a `current_state` added
+    
+    `rails g statesman:active_record_transition Order OrderTransition`
+
+```ruby
+class CreateOrderTransitions < ActiveRecord::Migration
+  def change
+    add_column :orders, :current_state, :string # <- ADD THIS LINE
+    create_table :order_transitions do |t|
+      t.string :to_state, null: false
+      t.text :metadata
+      t.integer :sort_key, null: false
+      t.integer :order_id, null: false
+      t.boolean :most_recent
+      t.timestamps null: false
+    end
+
+    add_index(:order_transitions, [:order_id, :sort_key], unique: true, name: "index_order_transitions_parent_sort")
+    add_index(:order_transitions, [:order_id, :most_recent], unique: true, name: "index_order_transitions_parent_most_recent")
+  end
+end
+```
+
+In your model, include this library and transitions:
+
+```ruby
+class Order < ActiveRecord::Base
+    include StateMachinable::Model
+    has_many :order_transitions, :dependent => :destroy
+```
+
+Then set up your state transitions:
+```ruby
+# app/state_machines/order_state_machine.rb
+
+class OrderStateMachine
+  include StateMachinable::Base
+
+  # define your states
+  state :open
+  state :processing
+  state :shipped
+  state :delivered
+  state :cancelled
+
+  # define transitions
+  transition :from => :initial, :to => :open
+  transition :from => :open, :to => [:processing, :cancelled]
+  transition :from => :processing, :to => [:shipped, :cancelled]
+  transition :from => :shipped, :to => [:delivered]
+
+  # define events that may occur
+  EVENTS = [
+    :event_processing,
+    :event_shipped,
+    :event_cancelled,
+    :event_delivered
+  ].freeze
+
+  # define a class for each state, with methods for event that may occur within that state
+  class Open
+    def self.event_processing(order)
+      order.transition_to!(:processing)
+      # TODO: send order confirmation email to customer
+    end
+    def self.event_cancelled(order)
+      order.transition_to!(:cancelled)
+      # ...
+    end
+  end
+  
+  class Shipped
+    def self.event_delivered(order)
+      order.transition_to!(:delivered)
+      # ...
+    end
+  end
+end
+
+```
+
+There are also hooks for the state changes that could be used instead of duplicating logic in multiple events that transition to the same state
+
+```ruby
+class Cancelled
+  def self.enter(order)
+    # TODO: send email to customer that order is cancelled
+  end
+end
+
+```
+
+## Usage
+When you want to transition from one state to another, call an event:
+
+```ruby
+order.state_machine.event_shipped
+```
+
+You may want to use a transaction around the event to ensure that both the current_state and transitions are committed, or to prevent invalid states
+
+```ruby
+ActiveRecord::Base.transaction do
+  # without a transaction here then an invoice could be created without the order's state succeeding in transitioning to shipped
+  Order.create_invoice_for_order!(order)
+  order.state_machine.event_shipped
+end
+```
+
+You can check the model's state with `#current_state`
+
+```ruby
+order.current_state
+```
 
 ## Development
 
