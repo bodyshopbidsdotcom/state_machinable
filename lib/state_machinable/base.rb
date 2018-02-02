@@ -38,7 +38,6 @@ module StateMachinable
           events = []
         end
 
-        events.concat([:ev_before_save, :ev_after_save]).uniq
         clean_name = name.to_s.chomp('!').to_sym
 
         if events.include?(clean_name)
