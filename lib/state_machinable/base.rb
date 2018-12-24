@@ -23,9 +23,15 @@ module StateMachinable
       end
 
       after_transition do |obj, transition|
-        obj.update(:current_state => transition.to_state)
-
         state_class = obj.state_machine.class.state_class(transition.to_state)
+        update_hash = {}
+
+        if state_class.present? && state_class.respond_to?(:pre_enter_updates_to_do)
+          update_hash.merge!(state_class.pre_enter_updates_to_do(obj))
+        end
+
+        obj.update(update_hash.merge!(:current_state => transition.to_state))
+
         if state_class.present? && state_class.respond_to?(:enter)
           state_class.enter(obj)
         end
