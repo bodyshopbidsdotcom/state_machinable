@@ -5,6 +5,8 @@ ActiveRecord::Schema.define do
     t.integer :amount_in_cents
     t.string :current_state
     t.string :payee_name
+    t.string :field1
+    t.string :field2
     t.datetime :sent_at
     t.datetime :cancelled_at
     t.datetime :created_at, null: false

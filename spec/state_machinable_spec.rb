@@ -30,6 +30,20 @@ RSpec.describe StateMachinable do
       .to change { payout.sent_at.nil? }.from(true).to(false)
   end
 
+  it 'ignores current_state update in pre_enter_updates_to_do' do
+    payout = Payout.create!
+
+    expect { payout.state_machine.event_payout_approved! }
+      .to change { payout.current_state }.from('awaiting_approval').to('ready_to_send')
+  end
+
+  it 'passes the payout to pre_enter_updates_to_do' do
+    payout = Payout.create!(:field1 => 'field1')
+
+    expect { payout.state_machine.event_payout_approved! }
+      .to change { payout.field2 }.from(nil).to('field1')
+  end
+
   it 'crashes if the event does not exist' do
     payout = Payout.create!
 

@@ -27,6 +27,10 @@ class PayoutStateMachine
   end
 
   class ReadyToSend
+    def self.pre_enter_updates_to_do(payout)
+      { :current_state => 'some_random_state', :field2 => payout.field1 }
+    end
+
     def self.event_sent(payout)
       payout.state_machine.transition_to!(:sent)
     end
