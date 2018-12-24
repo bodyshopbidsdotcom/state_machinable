@@ -12,12 +12,17 @@ class PayoutStateMachine
 
   EVENTS = [
     :event_payout_approved,
+    :event_cancelled,
     :event_sent
   ].freeze
 
   class AwaitingApproval
     def self.event_payout_approved(payout)
       payout.state_machine.transition_to!(:ready_to_send)
+    end
+
+    def self.event_cancelled(payout)
+      payout.state_machine.transition_to!(:cancelled)
     end
   end
 
@@ -28,6 +33,9 @@ class PayoutStateMachine
   end
 
   class Cancelled
+    def self.pre_enter_updates_to_do(payout)
+      { :cancelled_at => Time.now }
+    end
   end
 
   class Sent

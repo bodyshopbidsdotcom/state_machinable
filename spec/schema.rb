@@ -6,6 +6,7 @@ ActiveRecord::Schema.define do
     t.string :current_state
     t.string :payee_name
     t.datetime :sent_at
+    t.datetime :cancelled_at
     t.datetime :created_at, null: false
     t.datetime :updated_at, null: false
   end

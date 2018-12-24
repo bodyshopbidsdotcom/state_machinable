@@ -47,4 +47,12 @@ RSpec.describe StateMachinable do
 
     expect { payout.state_machine.event_sent! }.to raise_error(StateMachinable::EventNotHandledException)
   end
+
+  it 'calls and updates the object with the values returned by pre_enter_updates_to_do' do
+    payout = Payout.create!
+
+    expect { payout.state_machine.event_cancelled! }
+      .to change { payout.current_state }.from('awaiting_approval').to('cancelled')
+      .and change { payout.cancelled_at.nil? }.from(true).to(false)
+  end
 end
