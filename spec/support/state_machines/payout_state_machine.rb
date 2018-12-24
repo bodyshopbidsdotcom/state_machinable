@@ -5,15 +5,18 @@ class PayoutStateMachine
   state :ready_to_send
   state :cancelled
   state :sent
+  state :failed
 
   transition :from => :initial, :to => :awaiting_approval
   transition :from => :awaiting_approval, :to => [:cancelled, :ready_to_send]
   transition :from => :ready_to_send, :to => [:cancelled, :sent]
+  transition :from => :sent, :to => :failed
 
   EVENTS = [
     :event_payout_approved,
     :event_cancelled,
-    :event_sent
+    :event_sent,
+    :event_failed
   ].freeze
 
   class AwaitingApproval
@@ -45,6 +48,16 @@ class PayoutStateMachine
   class Sent
     def self.enter(payout)
       payout.update!(:sent_at => Time.now)
+    end
+
+    def self.event_failed(payout)
+      payout.state_machine.transition_to!(:failed)
+    end
+  end
+
+  class Failed
+    def self.pre_enter_updates_to_do(payout)
+      { :field1 => payout.field3 }
     end
   end
 end

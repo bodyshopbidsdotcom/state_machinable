@@ -7,6 +7,7 @@ ActiveRecord::Schema.define do
     t.string :payee_name
     t.string :field1
     t.string :field2
+    t.string :field3
     t.datetime :sent_at
     t.datetime :cancelled_at
     t.datetime :created_at, null: false
