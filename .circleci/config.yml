@@ -1,0 +1,54 @@
+version: 2.1
+orbs:
+  ruby: circleci/ruby@1.8.0
+references:
+  run_tests: &run_tests
+    run:
+      name: Run test suite
+      command: bundle exec rspec
+  restore: &restore
+    restore_cache:
+      keys:
+        - v1_bundler_deps-{{ checksum "Gemfile.lock" }}-{{ checksum "ruby_version.rev" }}
+  save: &save
+    save_cache:
+      paths:
+        - ./vendor/bundle
+      key: v1_bundler_deps-{{ checksum "Gemfile.lock" }}-{{ checksum "ruby_version.rev" }} # CIRCLE_JOB e.g. "ruby-2.5"
+  bundle: &bundle
+    run:
+      name: install dependencies
+      command: |
+        echo "export BUNDLE_JOBS=4" >> $BASH_ENV
+        echo "export BUNDLE_RETRY=3" >> $BASH_ENV
+        echo "export BUNDLE_PATH=$(pwd)/vendor/bundle" >> $BASH_ENV
+        source $BASH_ENV
+        gem install bundler -v 1.17.3
+        bundle install
+
+jobs:
+  test:
+    parameters:
+      ruby_version:
+        type: string
+    docker:
+      - image: "cimg/ruby:<< parameters.ruby_version >>"
+    environment:
+      RUBY_VERSION: <<parameters.ruby_version>>
+    steps:
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get install sqlite3 libsqlite3-dev
+      - run: echo "${RUBY_VERSION}" > ruby_version.rev
+      - <<: *restore
+      - <<: *bundle
+      - <<: *run_tests
+      - <<: *save
+
+workflows:
+  all-tests:
+    jobs:
+      - test:
+          matrix:
+            parameters:
+              ruby_version: ["2.4", "2.5", "2.6", "2.7"]
