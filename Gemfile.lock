@@ -3,7 +3,7 @@ PATH
   specs:
     state_machinable (4.0.0)
       activesupport (>= 4, < 6)
-      statesman (> 2.0, < 4.0)
+      statesman (> 2.0, < 10.0)
 
 GEM
   remote: https://rubygems.org/
@@ -45,7 +45,7 @@ GEM
       rspec-support (~> 3.9.0)
     rspec-support (3.9.4)
     sqlite3 (1.4.4)
-    statesman (3.5.0)
+    statesman (9.0.1)
     thread_safe (0.3.6)
     tzinfo (1.2.10)
       thread_safe (~> 0.1)
