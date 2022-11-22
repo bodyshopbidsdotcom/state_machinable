@@ -30,7 +30,7 @@ module StateMachinable
           update_hash.merge!(state_class.pre_enter_updates_to_do(obj))
         end
 
-        obj.update(update_hash.merge!(:current_state => transition.to_state))
+        obj.update!(update_hash.merge!(:current_state => transition.to_state))
 
         if state_class.present? && state_class.respond_to?(:enter)
           state_class.enter(obj)

@@ -17,7 +17,9 @@ RSpec.describe StateMachinable do
     payout = Payout.new
 
     expect { payout.save! }
-      .to change { payout.payout_transitions.count }.by(1)
+      .to change { PayoutTransition.count }.by(1)
+      .and change { Payout.count }.by(1)
+      .and change { payout.payout_transitions.count }.by(1)
       .and change { payout.current_state }.from(nil).to('awaiting_approval')
   end
 
@@ -27,21 +29,21 @@ RSpec.describe StateMachinable do
     expect(PayoutStateMachine::Sent).to receive(:enter).with(payout).and_call_original
 
     expect { payout.state_machine.event_sent! }
-      .to change { payout.sent_at.nil? }.from(true).to(false)
+      .to change { payout.reload.sent_at.nil? }.from(true).to(false)
   end
 
   it 'ignores current_state update in pre_enter_updates_to_do' do
     payout = Payout.create!
 
     expect { payout.state_machine.event_payout_approved! }
-      .to change { payout.current_state }.from('awaiting_approval').to('ready_to_send')
+      .to change { payout.reload.current_state }.from('awaiting_approval').to('ready_to_send')
   end
 
   it 'passes the payout to pre_enter_updates_to_do' do
     payout = Payout.create!(:field1 => 'field1')
 
     expect { payout.state_machine.event_payout_approved! }
-      .to change { payout.field2 }.from(nil).to('field1')
+      .to change { payout.reload.field2 }.from(nil).to('field1')
   end
 
   it 'crashes if the event does not exist' do
@@ -66,7 +68,18 @@ RSpec.describe StateMachinable do
     payout = Payout.create!
 
     expect { payout.state_machine.event_cancelled! }
-      .to change { payout.current_state }.from('awaiting_approval').to('cancelled')
-      .and change { payout.cancelled_at.nil? }.from(true).to(false)
+      .to change { payout.reload.current_state }.from('awaiting_approval').to('cancelled')
+      .and change { payout.reload.cancelled_at.nil? }.from(true).to(false)
+  end
+
+  it 'does not silently fail' do
+    payout = Payout.create!(:field3 => 'Random invalid string for field1')
+    payout.state_machine.event_payout_approved!
+    payout.state_machine.event_sent!
+
+    expect { payout.state_machine.event_failed! }
+      .to raise_error(ActiveRecord::RecordInvalid)
+
+    expect(payout.reload.current_state).to eq('sent')
   end
 end
