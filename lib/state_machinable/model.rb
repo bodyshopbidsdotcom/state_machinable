@@ -13,7 +13,7 @@ module StateMachinable
     end
 
     included do
-      after_save :transition_to_initial_state, :if => Proc.new { |obj| obj.id_changed? }
+      after_save :transition_to_initial_state, :if => Proc.new { |obj| obj.saved_change_to_id? }
       delegate :can_transition_to?, :transition_to!, :transition_to, :to => :state_machine
 
       def state_machine
