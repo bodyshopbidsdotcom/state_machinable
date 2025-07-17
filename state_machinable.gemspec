@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Gem that adds functionality to statesman}
   spec.homepage      = "https://github.com/snapsheet/state_machinable"
   spec.license       = "MIT"
+  spec.required_ruby_version = ">= 2.7.0"
 
   if spec.respond_to?(:metadata)
     spec.metadata['allowed_push_host'] = "https://rubygems.org"
@@ -31,8 +32,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "pry"
-  spec.add_development_dependency "activerecord", ">= 5.1", "< 7"
-  spec.add_development_dependency "sqlite3", "~> 1.3"
+  spec.add_development_dependency "activerecord", ">= 5.1", "< 8"
+  spec.add_development_dependency "sqlite3", "~> 1.4"
   spec.add_dependency "statesman", "> 2.0", "< 10.0"
-  spec.add_dependency "activesupport", ">= 4", "< 7"
+  spec.add_dependency "activesupport", ">= 4", "< 8"
 end

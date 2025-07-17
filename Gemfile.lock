@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    state_machinable (4.0.0)
-      activesupport (>= 4, < 7)
+    state_machinable (4.1.0)
+      activesupport (>= 4, < 8)
       statesman (> 2.0, < 10.0)
 
 GEM
@@ -53,12 +53,12 @@ PLATFORMS
   x86_64-darwin-21
 
 DEPENDENCIES
-  activerecord (>= 5.1, < 7)
+  activerecord (>= 5.1, < 8)
   bundler
   pry
   rake (~> 10.0)
   rspec (~> 3.0)
-  sqlite3 (~> 1.3)
+  sqlite3 (~> 1.4)
   state_machinable!
 
 BUNDLED WITH
